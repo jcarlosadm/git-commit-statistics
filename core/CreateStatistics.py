@@ -46,10 +46,9 @@ def main(args):
         try:	
             tf = open('../results/resultFile',"a+")
             tf.writelines('Commit: ' + commit_id + '\n')
-            tf.close()    	
-        limit = limit + 1
-	g.reset('--hard', commit_id)
-	analyseCode(args.path)
+            tf.close()
+	    g.reset('--hard', commit_id)
+	    analyseCode(args.path)
         except:
             print 'Fail'        
         

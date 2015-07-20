@@ -41,24 +41,18 @@ def main(args):
 
     print "loaded %s commits" % len(commit_ids)
     open('../results/resultFile',"a").close()
-    limit = 0
-    for commit_id in commit_ids[::-1]:  #start with the oldest commit
+    for commit_id in commit_ids[::-1]:
         print commit_id
         try:	
             tf = open('../results/resultFile',"a+")
             tf.writelines('Commit: ' + commit_id + '\n')
-            tf.close()
-    	except:
-            print 'Fail'
+            tf.close()    	
         limit = limit + 1
 	g.reset('--hard', commit_id)
 	analyseCode(args.path)
+        except:
+            print 'Fail'        
         
-        break
-        #do something with the commit
-        #for example:
-        #repo.git.checkout(commit_id)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

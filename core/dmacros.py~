@@ -662,7 +662,7 @@ class DisciplinedAnnotations:
         # +";UndUnknown="+str(self.undisciplinedunknown)
         # +";OB="+str(self.disciplined/(0.0+self.overallblocks))
         # +";"+str(self.overallblocks)+"\n")
-        resultList = xmlfile[xmlfile.rfind('/') + 1:]
+        resultList = xmlfile[xmlfile.rfind('/') + 1: xmlfile.rfind('/')]
         print "\nUndisciplined Known = " + str(self.undisciplinedknown)
         print "Undisciplined Unknown = " + str(self.undisciplinedunknown)
         print "Undisciplined Annotations = " + str(self.undisciplinedknown + self.undisciplinedunknown)
