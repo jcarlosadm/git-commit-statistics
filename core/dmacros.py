@@ -57,9 +57,11 @@ class DisciplinedAnnotations:
     __cpprens = re.compile('{(.+)}(.+)')
     __conditionals = ['if', 'ifdef', 'ifndef', 'else', 'elif', 'endif']
     __conditions   = ['if', 'ifdef', 'ifndef']
-    ##################################################
+    ##################################################	
+    
 
-    def __init__(self):
+    def __init__(self, inputDir):
+	self.results = []
         oparser = OptionParser()
         oparser.add_option('-d', '--dir', dest='dir',
                 help='input directory (mandatory)')
@@ -95,8 +97,11 @@ class DisciplinedAnnotations:
         (self.opts, self.args) = oparser.parse_args()
 
         if not self.opts.dir:
-            oparser.print_help()
-            sys.exit(-1)
+	    if not inputDir:
+                oparser.print_help()
+                sys.exit(-1)
+	    else:
+		self.opts.dir = inputDir
 
         self.overallblocks = 0
         self.disciplined = 0
@@ -113,7 +118,7 @@ class DisciplinedAnnotations:
         self.parameter = 0
         self.expression = 0
         self.loc = 0
-        self.checkFiles()
+        return self.checkFiles()
 
     def __getIfdefAnnotations__(self, root):
         '''This method returns all nodes of the xml which are ifdef
@@ -643,7 +648,10 @@ class DisciplinedAnnotations:
             return
 
     def checkFiles(self):
-        xmlfiles = returnFileNames(self.opts.dir, ['.xml'])
+	if not ".xml" in self.opts.dir:
+        	xmlfiles = returnFileNames(self.opts.dir, ['.xml'])
+	else:
+		xmlfiles = [self.opts.dir]
         for xmlfile in  xmlfiles:
             print('[INFO] checking file %s' % xmlfile)
             self.checkFile(xmlfile)
@@ -661,25 +669,10 @@ class DisciplinedAnnotations:
         # +";UndKnown="+str(self.undisciplinedknown)
         # +";UndUnknown="+str(self.undisciplinedunknown)
         # +";OB="+str(self.disciplined/(0.0+self.overallblocks))
-        # +";"+str(self.overallblocks)+"\n")
-        resultList = xmlfile[xmlfile.rfind('/') + 1: xmlfile.rfind('.')]
-        print "\nUndisciplined Known = " + str(self.undisciplinedknown)
-        print "Undisciplined Unknown = " + str(self.undisciplinedunknown)
-        print "Undisciplined Annotations = " + str(self.undisciplinedknown + self.undisciplinedunknown)
-	resultList+= ', ' + str(self.undisciplinedknown + self.undisciplinedunknown)
-        print "\nDisciplined Annotations = " + str(self.disciplined)
-	resultList+= ', ' + str(self.disciplined)
-	if 0.0+self.overallblocks > 0:
-        	print "Disciplined Annotations = " + str(self.disciplined/(0.0+self.overallblocks)) + "%"
-	else:
-		print "Disciplined Annotations = 0%"
-        print "\nOverall blocks = " + str(self.overallblocks)+"\n"
-	try:
-                tf = open('../results/resultFile',"a+")
-	    	tf.writelines(resultList)
-		tf.close()
-	except:
-		print 'Fail'
+        # +";"+str(self.overallblocks)+"\n")        
+	self.results.append(str(self.undisciplinedknown + self.undisciplinedunknown))
+	self.results.append(str(self.disciplined))
+	
 ##################################################
 if __name__ == '__main__':
     DisciplinedAnnotations()
