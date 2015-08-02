@@ -9,8 +9,8 @@
 function createChart(id, data) {
 var disciplined = [], undisciplined = [], loc = []
 for (i = 0; i < data.y.length; i++) {	
-	disciplined.push(parseInt(data.y[i][0]));
-	undisciplined.push(parseInt(data.y[i][1]));
+	disciplined.push(parseInt(data.y[i][1]));
+	undisciplined.push(parseInt(data.y[i][0]));
 	loc.push(parseInt(data.y[i][2]));
 }
 $('#' + id).highcharts({

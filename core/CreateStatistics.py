@@ -68,7 +68,7 @@ def compareCommits(idBefore, idAfter, repo):
 		    changed_files.append(x.b_blob.name)
 	return changed_files
 
-def backup(commit_ids, commitFileMap):
+def backup(commit_ids, commitFileMap, index):
     resultMap = {}
     idx = 0
     for commit_id in commit_ids:
@@ -79,11 +79,15 @@ def backup(commit_ids, commitFileMap):
 				resultMap[filename] = {'x':[], 'y':[]}
 			resultMap[filename]['x'].append(commit_id)
 			resultMap[filename]['y'].append(commitFileMap[commit_id][filename])
-   	     except:
-		print 'Failed: ' + commit_id
+   	     except Exception,e: 
+		print 'Failed: ' + commit_id + ' reason: \n'		
+		print str(e)	
+		
     	idx =  idx + 1
+	if idx > index:
+		break
     f = open('../results/resultJson', 'w')
-    f.write('////Number of commits: ' + str(idx) + '\n var info =')
+    f.write('//Number of commits: ' + str(idx) + '\n var info =')
     f.write(json.dumps(resultMap))
     f.write('\n')
     f.close()
@@ -108,14 +112,18 @@ def main(args):
     idx = 0
     commitFileMap = {}
     for commit_id in commit_ids[::-1]:
-        print 'Analisando: ' + commit_id
-        
-        if idx > 0:
-	    g.reset('--hard', commit_id)
-            commitFileMap[commit_id] = analyseCode(args.path, compareCommits(commit_ids[idx-1], commit_id, repo))
-	idx = idx + 1
-	backup(commit_ids, commitFileMap)
-	time.sleep( 1 )
+	try:
+		print 'Analisando: ' + commit_id
+		
+		if idx > 0:
+		    g.reset('--hard', commit_id)
+		    commitFileMap[commit_id] = analyseCode(args.path, compareCommits(commit_ids[idx-1], commit_id, repo))
+		idx = idx + 1
+		backup(commit_ids[::-1], commitFileMap, idx)
+		time.sleep( 1 )
+	except Exception,e: 
+		print 'Failed: ' + commit_id + ' reason: \n'		
+		print str(e)
     resultMap = {}
     
         
