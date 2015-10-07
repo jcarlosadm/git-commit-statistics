@@ -66,7 +66,7 @@ class DisciplinedAnnotations:
         oparser.add_option('-d', '--dir', dest='dir',
                 help='input directory (mandatory)')
         oparser.add_option('-l', '--log', dest='log',
-                default=True, help='log to stdout (default=True)')
+                default=False, help='log to stdout (default=True)')
         oparser.add_option('-c', '--check', dest='check', type='int',
                 default=1, help='pattern check (default=1)')
         oparser.add_option('-v', '--verbose', dest='verbose', type='int',
@@ -172,7 +172,7 @@ class DisciplinedAnnotations:
         # iterate annotated blocks by determining all siblings of the #ifdef and filter out preprocessor
         # annotated elements
         resultlist = filter(lambda (ifdef, endif): ifdef.getnext() != endif, listifdefs)
-        print('[INFO] before after: %s <-> %s' % (str(len(listifdefs)), str(len(resultlist))))
+        #print('[INFO] before after: %s <-> %s' % (str(len(listifdefs)), str(len(resultlist))))
         return resultlist
 
 

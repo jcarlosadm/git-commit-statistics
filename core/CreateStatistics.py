@@ -28,9 +28,9 @@ def analyseCode(path, changedFiles):
 				except:
 					print "Fail to delete "
 	count = 0 
-	while(len(testQueue) > 0 and count < 10) :
+	while(len(testQueue) > 0 and count < 20) :
 	     count = count + 1
-	     time.sleep( 2 )
+	     time.sleep( 1 )
 	
 	return resultMap
 
@@ -38,7 +38,8 @@ def threadWork(resultMap, testQueue, item, root):
 	try:     
 		os.system("srcML/src2srcml " + root + "/" + item + " > ../results/" + item.replace(".c", ".xml"))
 		resultMap[item.replace('.c', '')] = doWork(item.replace(".c", ".xml"), root)
-	except:
+	except Exception,e: 
+		print str(e)	
 		print "Fail to check file"
 	try:
 		del testQueue[testQueue.index(item.replace('.c', ''))]
@@ -71,21 +72,37 @@ def compareCommits(idBefore, idAfter, repo):
 def backup(commit_ids, commitFileMap, index):
     resultMap = {}
     idx = 0
-    for commit_id in commit_ids:
+    lastListIndex = 0
+    for commit_id in commit_ids[::-1]:
 	if idx > 0:
 	     try:
-		for filename in commitFileMap[commit_id]:
-			if filename not in resultMap:
-				resultMap[filename] = {'x':[], 'y':[]}
-			resultMap[filename]['x'].append(commit_id)
-			resultMap[filename]['y'].append(commitFileMap[commit_id][filename])
+		if commit_id in commitFileMap:
+			for filename in commitFileMap[commit_id]:
+				if filename not in resultMap:
+					resultMap[filename] = {'x':[], 'y':[]}
+				lastListIndex = len(resultMap[filename]['y'])-1
+				if lastListIndex < 1 or resultMap[filename]['y'][lastListIndex] != commitFileMap[commit_id][filename]:
+					resultMap[filename]['x'].append(commit_id)
+					resultMap[filename]['y'].append(commitFileMap[commit_id][filename])
    	     except Exception,e: 
-		print 'Failed: ' + commit_id + ' reason: \n'		
+		print 'Backup failed: ' + commit_id + ' reason: \n'
+		print 'index: ', lastListIndex
 		print str(e)	
 		
     	idx =  idx + 1
 	if idx > index:
 		break
+	removeList = []
+	for key in resultMap:
+		remove = True
+		for val in resultMap[key]['y']:
+			if val[0] != "0" or val[1] != "0":
+				remove = False
+		if remove:
+			removeList.append(key)
+	for key in removeList:
+		del resultMap[key]
+
     f = open('../results/resultJson', 'w')
     f.write('//Number of commits: ' + str(idx) + '\n var info =')
     f.write(json.dumps(resultMap))
@@ -100,7 +117,6 @@ def main(args):
         sys.exit("no such repo")
 
     try:
-	print args.branch
         text = repo.git.rev_list(args.branch).splitlines()
     except:
         sys.exit("no such branch")
@@ -119,8 +135,8 @@ def main(args):
 		    g.reset('--hard', commit_id)
 		    commitFileMap[commit_id] = analyseCode(args.path, compareCommits(commit_ids[idx-1], commit_id, repo))
 		idx = idx + 1
-		backup(commit_ids[::-1], commitFileMap, idx)
-		time.sleep( 1 )
+		backup(commit_ids, commitFileMap, idx)
+		time.sleep( 1 )	
 	except Exception,e: 
 		print 'Failed: ' + commit_id + ' reason: \n'		
 		print str(e)
