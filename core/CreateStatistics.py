@@ -126,20 +126,38 @@ def main(args):
     print "loaded %s commits" % len(commit_ids)
     open('../results/resultFile',"a").close()
     idx = 0
+    init = 0	
+    index = 0
+    end = len(commit_ids) + 1
+    print args
+    if int(args.i) != 0:
+        init = int(args.i)
+    if int(args.f) != 0:
+        end = int(args.f)
+
     commitFileMap = {}
+    print "Init: ", init, " End: ", end
     for commit_id in commit_ids[::-1]:
 	try:
-		print 'Analisando: ' + commit_id
+		if index < end and index > init:
+			print 'Analisando: ' + commit_id
 		
-		if idx > 0:
-		    g.reset('--hard', commit_id)
-		    commitFileMap[commit_id] = analyseCode(args.path, compareCommits(commit_ids[idx-1], commit_id, repo))
-		idx = idx + 1
-		backup(commit_ids, commitFileMap, idx)
-		time.sleep( 1 )	
+			if idx > 0:
+			    g.reset('--hard', commit_id)
+			    commitFileMap[commit_id] = analyseCode(args.path, compareCommits(commit_ids[idx-1], commit_id, repo))
+			idx = idx + 1
+			backup(commit_ids, commitFileMap, idx)
+			time.sleep( 1 )	
+
+		elif index < end:
+			print "Skipping: " + commit_id
+		else:
+			break
+		index = index + 1
 	except Exception,e: 
 		print 'Failed: ' + commit_id + ' reason: \n'		
 		print str(e)
+		
     resultMap = {}
     
         
@@ -148,6 +166,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('path', nargs="?", default=".")
     parser.add_argument('--branch', '-b', default="master")
+    parser.add_argument('--i', '-i', default="0")
+    parser.add_argument('--f', '-f', default="0")
     parser.add_argument('--skip', '-s', type=int, default=1, help='use every n-th commit')
     args = parser.parse_args()
 
