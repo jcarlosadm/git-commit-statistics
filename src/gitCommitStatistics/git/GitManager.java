@@ -144,6 +144,14 @@ public class GitManager {
             git.checkout().setName(hash).call();
             return true;
         } catch(Exception e) {
+            GeneralReport.getInstance().reportError("Não foi possível dar o checkout no commit: " + hash + ", resetando para tentar de novo");
+        }
+        try {
+            git.reset().setMode(ResetCommand.ResetType.HARD).call();
+            git.checkout().setName(hash).call();
+            return true;
+        } catch(Exception e) {
+            e.printStackTrace();
             GeneralReport.getInstance().reportError("Não foi possível dar o checkout no commit: " + hash);
             return false;
         }
@@ -157,3 +165,4 @@ public class GitManager {
         test.checkout("28a029a4990d2a84f9d6a0b890eba812ea503998");
     }
 }
+
