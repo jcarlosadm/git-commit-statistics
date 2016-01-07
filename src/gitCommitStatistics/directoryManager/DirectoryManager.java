@@ -211,6 +211,82 @@ public class DirectoryManager {
         return false;
 
     }
+    public boolean writeBackupResume(String repo, String tasks) {
+
+        try {
+            FileWriter writer = new FileWriter(BACKUP_PATH + System.getProperty("file.separator") + "backupTasks");
+            writer.write(repo + ";" + tasks);
+            writer.close();
+            return true;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+
+    }
+    public boolean isAResume(String repo) {
+        BufferedReader br = null;
+        boolean result = false;
+        try {
+            File backup = new File(BACKUP_PATH + System.getProperty("file.separator") + "backupTasks");
+            if (backup.exists()) {
+                String sCurrentLine;
+
+                br = new BufferedReader(new FileReader(backup));
+
+                if((sCurrentLine = br.readLine()) != null && sCurrentLine.contains(repo)) {
+                    result = true;
+                }
+
+                if (br != null)br.close();
+            }
+        } catch (Exception e) {
+
+        } finally {
+            try {
+                if (br != null)br.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+
+    public int getResumeTasks(String repo) {
+        BufferedReader br = null;
+        int result = 0;
+        try {
+            File backup = new File(BACKUP_PATH + System.getProperty("file.separator") + "backupTasks");
+            if (backup.exists()) {
+                String sCurrentLine;
+
+                br = new BufferedReader(new FileReader(backup));
+
+                if((sCurrentLine = br.readLine()) != null && sCurrentLine.contains(repo)) {
+                    System.out.println(sCurrentLine);
+                    String[] repoSplit = sCurrentLine.split(";");
+                    result = Integer.parseInt(repoSplit[1]);
+                }
+
+                if (br != null)br.close();
+            }
+        } catch (Exception e) {
+
+        } finally {
+            try {
+                if (br != null)br.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+
+
     public boolean writeResults(Hashtable<String, Hashtable<String, ArrayList<String>>> resultMap, String repoLink) {
         String name = repoLink.substring(repoLink.lastIndexOf("/") + 1).replace(".git", "");
         String commitLink = repoLink.replace(".git", "/commit/");
@@ -259,3 +335,5 @@ public class DirectoryManager {
         System.out.println(DirectoryManager.getInstance().cloneProject("workerTeste"));
     }
 }
+
+

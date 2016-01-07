@@ -23,6 +23,8 @@ public class MainWorker {
     private ExecutorService executorService;
     private static MainWorker instance;
     private int numberOfWorkers;
+    private boolean isAResume;
+    private int resumeTasks;
     private Hashtable<String, Hashtable<String, ArrayList<String>>> resultMap;
     private Hashtable<String, Hashtable<String, ArrayList<String>>> backupMap;
     private ArrayList<String> commitsChecked;
@@ -76,20 +78,31 @@ public class MainWorker {
                 backupMap = new Hashtable<String, Hashtable<String, ArrayList<String>>>();
                 resultMap = new Hashtable<String, Hashtable<String, ArrayList<String>>>();
                 commitsChecked = new ArrayList<String>();
-                if(GitManager.cloneRepo(repo, GitManager.PROJECT_PATH)) { //Cloning repo
+                System.out.println(repo);
+                isAResume = DirectoryManager.getInstance().isAResume(repo);
+                if (isAResume) {
+                    resumeTasks = DirectoryManager.getInstance().getResumeTasks(repo);
+                }
+                System.out.println(DirectoryManager.getInstance().getResumeTasks(repo));
+                 if(GitManager.cloneRepo(repo, GitManager.PROJECT_PATH)) { //Cloning repo
                     GitManager gitManager = new GitManager();
                     gitManager.setRepository(GitManager.PROJECT_PATH);
                     executeTasks(gitManager.getChangeMapKeys(), gitManager.getChangedFilesMap());
                     DirectoryManager.getInstance().writeResults(backupMap, repo);
                     GeneralReport.getInstance().reportInfo(repo + ": finalizado");
-                }
+                     }
             }
+            return true;
         }
         return false;
     }
 
     public void executeTasks(ArrayList<String> commits, Hashtable<String, ArrayList<String>> changeMap) {
-        for(int i = 0; i < commits.size(); i++) {
+        int i = 0;
+        if (isAResume) {
+            i = resumeTasks;
+        }
+        for(; i < commits.size(); i++) {
             try {
                 workers.add(new Worker("Worker-" + i % numberOfWorkers, commits.get(i), changeMap.get(commits.get(i))));
                 if(i > 0 && i% numberOfWorkers == 0) {
@@ -168,7 +181,7 @@ public class MainWorker {
     }
     public static void main(String args[]) {
 
-        Hashtable<String, ArrayList<String>> teste = new Hashtable<String, ArrayList<String>>();
+        /*Hashtable<String, ArrayList<String>> teste = new Hashtable<String, ArrayList<String>>();
         System.out.println(teste);
         teste.put("a", new ArrayList<String>());
         System.out.println(teste);
@@ -176,7 +189,17 @@ public class MainWorker {
         System.out.println(teste);
         teste.get("a").add("13");
         System.out.println(teste);
-        teste.get("a").add("14");
+        teste.get("a").add("14");*/
+        ArrayList<ArrayList<String>> test = new ArrayList<ArrayList<String>>();
+        System.out.println(test.size() >= 2 && !test.get(0).isEmpty() && !test.get(1).isEmpty());
+        test.add(new ArrayList<String>());
+        test.add(new ArrayList<String>());
+        test.get(0).add("something");
+        test.get(1).add("something");
+        test.get(1).add("something");
+        test.get(1).add("something");
+        System.out.println(test.size() >= 2 && !test.get(0).isEmpty() && !test.get(1).isEmpty());
+        System.out.println(test.get(3));
 
     }
 }
