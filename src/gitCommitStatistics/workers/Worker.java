@@ -52,7 +52,7 @@ public class Worker implements Callable<Hashtable<String, Hashtable<String, Arra
                     List<Future<ArrayList<ArrayList<String>>>> tasks = executorService.invokeAll(interns);
                     for(Future<ArrayList<ArrayList<String>>> task : tasks)
                     {
-                        if (task.get() != null) {
+                        if (task.get() != null && task.get().size() >= 2 && !task.get().get(0).isEmpty() && !task.get().get(1).isEmpty()) {
                             resultsTemp.put(task.get().get(0).get(0), task.get().get(1));
                         }
                     }
@@ -71,3 +71,4 @@ public class Worker implements Callable<Hashtable<String, Hashtable<String, Arra
 
 
 }
+
