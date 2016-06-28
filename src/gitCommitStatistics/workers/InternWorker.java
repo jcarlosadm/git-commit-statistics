@@ -68,7 +68,7 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
     public ArrayList<String> executeMacros(String filePath) {
         String filename = filePath.substring(filePath.lastIndexOf(System.getProperty("file.separator")) + 1),
                 fileResult = resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
-        String command = dmacrosPath() + " " + fileResult;
+        String command = PropertiesManager.getPropertie("path.dmacros") + " " + fileResult;
         ProccessManager proccessManager = new ProccessManager(command, true);
         if (proccessManager.hasError()) {
             DirectoryManager.getInstance().deleteFile(new File(fileResult));
@@ -80,10 +80,6 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
             DirectoryManager.getInstance().deleteFile(new File(fileResult));
             return result;
         }
-    }
-
-    protected String dmacrosPath() {
-        return PropertiesManager.getPropertie("path.dmacros");
     }
 
     protected ArrayList<String> transformDmacrosOutput(String dmacrosOutput) {
