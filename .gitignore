@@ -1,6 +1,8 @@
 # "temporary" build files
 /target
 /target-eclipse
+/out/
+/results/
 
 # IDES
 *.iml

@@ -10,10 +10,11 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
-    private String workerId;
-    private String resultDirectory;
-    private String filePathAux;
-    private String path;
+    protected String workerId;
+    protected String resultDirectory;
+    protected String filePathAux;
+    protected String path;
+
     public InternWorker(String workerId, String filePath) {
         this.workerId = workerId;
         path = DirectoryManager.WORKERS_PATH + System.getProperty("file.separator") + workerId;
@@ -29,8 +30,8 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
         ArrayList<String> pathToArray = new ArrayList<String>();
         pathToArray.add(filename);
         result.add(pathToArray);
-        if(file.exists()){
-            if(createSRCML(filePathAux)) {
+        if (file.exists()) {
+            if (createSRCML(filePathAux)) {
                 result.add(executeMacros(filePathAux));
                 return result;
             }
@@ -43,41 +44,58 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
     }
 
     public boolean createSRCML(String item) {
-        String filename = item.substring(item.lastIndexOf(System.getProperty("file.separator")) + 1), fileResult = resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
+        String filename = item.substring(item.lastIndexOf(System.getProperty("file.separator")) + 1),
+                fileResult = resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
         try {
             File directory = new File(resultDirectory);
             if (!directory.exists()) {
-                if(!directory.mkdir()){
+                if (!directory.mkdir()) {
                     return false;
                 }
             }
         } catch (Exception e) {
-            GeneralReport.getInstance().reportError("Não foi possível criar o diretório de resultados para o woker: " + workerId);
+            GeneralReport.getInstance()
+                    .reportError("Não foi possível criar o diretório de resultados para o woker: " + workerId);
         }
-        String command = PropertiesManager.getPropertie("path.src2srcml") + " " + item + " > " + resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
+        String command = PropertiesManager.getPropertie("path.src2srcml") + " " + item + " > " + resultDirectory
+                + System.getProperty("file.separator") + filename.replace(".c", ".xml");
         ProccessManager proccessManager = new ProccessManager(command, false);
 
-        return !proccessManager.hasError() && DirectoryManager.getInstance().writeFile(fileResult, proccessManager.getOutput());
+        return !proccessManager.hasError()
+                && DirectoryManager.getInstance().writeFile(fileResult, proccessManager.getOutput());
     }
 
     public ArrayList<String> executeMacros(String filePath) {
-        String filename = filePath.substring(filePath.lastIndexOf(System.getProperty("file.separator")) + 1), fileResult = resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
-        String command = PropertiesManager.getPropertie("path.dmacros") + " " + fileResult;
+        String filename = filePath.substring(filePath.lastIndexOf(System.getProperty("file.separator")) + 1),
+                fileResult = resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
+        String command = dmacrosPath() + " " + fileResult;
         ProccessManager proccessManager = new ProccessManager(command, true);
-        if(proccessManager.hasError()) {
+        if (proccessManager.hasError()) {
             DirectoryManager.getInstance().deleteFile(new File(fileResult));
             return null;
         } else {
-            String temp = proccessManager.getOutput();
-            temp = temp.substring(temp.lastIndexOf("["));
-            temp = temp.replace("[","").replace("]","");
-            String[] tempArray = temp.split(",");
-            ArrayList<String> result = new ArrayList<String>();
-            result.add(tempArray[0]);
-            result.add(tempArray[1]);
-            result.add("0");
+            String dmacrosOutput = proccessManager.getOutput();
+            
+            ArrayList<String> result = transformDmacrosOutput(dmacrosOutput);
             DirectoryManager.getInstance().deleteFile(new File(fileResult));
             return result;
         }
+    }
+
+    protected String dmacrosPath() {
+        return PropertiesManager.getPropertie("path.dmacros");
+    }
+
+    protected ArrayList<String> transformDmacrosOutput(String dmacrosOutput) {
+        ArrayList<String> result = new ArrayList<String>();
+        
+        dmacrosOutput = dmacrosOutput.substring(dmacrosOutput.lastIndexOf("["));
+        dmacrosOutput = dmacrosOutput.replace("[", "").replace("]", "");
+        String[] tempArray = dmacrosOutput.split(",");
+        result.add(tempArray[0]);
+        result.add(tempArray[1]);
+        result.add("0");
+        
+        return result;
     }
 }
