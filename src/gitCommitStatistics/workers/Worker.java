@@ -43,6 +43,7 @@ public class Worker implements Callable<Hashtable<String, Hashtable<String, Arra
     public Hashtable<String, Hashtable<String, ArrayList<String>>> call() {
         Hashtable<String, ArrayList<String>> resultsTemp = new Hashtable<String, ArrayList<String>>();
         Hashtable<String, Hashtable<String, ArrayList<String>>> result = new Hashtable<String, Hashtable<String, ArrayList<String>>>();
+        this.preCommitTask();
 
         for (int i = 0; i < filesToAnalise.size(); i++) {
             try {
@@ -63,8 +64,15 @@ public class Worker implements Callable<Hashtable<String, Hashtable<String, Arra
             }
         }
         result.put(hashId, resultsTemp);
+        this.postCommitTask();
 
         return result;
+    }
+    
+    protected void preCommitTask() {
+    }
+
+    protected void postCommitTask() {
     }
 
     protected InternWorker getInternWorkerInstance(int indexFile) {
