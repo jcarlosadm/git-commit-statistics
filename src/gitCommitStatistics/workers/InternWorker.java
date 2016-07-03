@@ -1,16 +1,14 @@
 package gitCommitStatistics.workers;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
+
 import gitCommitStatistics.directoryManager.DirectoryManager;
 import gitCommitStatistics.properties.PropertiesManager;
 import gitCommitStatistics.report.GeneralReport;
 
-import java.io.File;
-import java.util.ArrayList;
-
-import java.util.concurrent.Callable;
-
 public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
-    private static final String SRC2SRCML_WRITE_SYMBOL = "-o";
     
     protected String workerId;
     protected String resultDirectory;
@@ -59,18 +57,20 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
             GeneralReport.getInstance()
                     .reportError("Não foi possível criar o diretório de resultados para o woker: " + workerId);
         }
-        String command = PropertiesManager.getPropertie("path.src2srcml") + " " + item + " " + SRC2SRCML_WRITE_SYMBOL +
-                " " + resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
+        //String command = "./"+PropertiesManager.getPropertie("path.src2srcml") + " " + item + " " + SRC2SRCML_WRITE_SYMBOL +
+        //      " " + resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
+        String command = PropertiesManager.getPropertie("path.src2srcml") + " " + item;
+        
         ProccessManager proccessManager = new ProccessManager(command, false);
-
-        return !proccessManager.hasError() && DirectoryManager.getInstance().writeFile(fileResult, proccessManager.getOutput());
+        return (!proccessManager.hasError() && DirectoryManager.getInstance().writeFile(fileResult, proccessManager.getOutput()));
     }
 
     public ArrayList<String> executeMacros(String filePath) {
         String filename = filePath.substring(filePath.lastIndexOf(System.getProperty("file.separator")) + 1),
                 fileResult = resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
         String command = PropertiesManager.getPropertie("path.dmacros") + " " + fileResult;
-        ProccessManager proccessManager = new ProccessManager(command, true);
+        // ProccessManager proccessManager = new ProccessManager(command, true);
+        ProccessManager proccessManager = new ProccessManager(command, false);
         if (proccessManager.hasError()) {
             DirectoryManager.getInstance().deleteFile(new File(fileResult));
             return null;
