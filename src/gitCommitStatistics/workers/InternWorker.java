@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
+    private static final String SRC2SRCML_WRITE_SYMBOL = "-o";
+    
     protected String workerId;
     protected String resultDirectory;
     protected String filePathAux;
@@ -57,12 +59,11 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
             GeneralReport.getInstance()
                     .reportError("Não foi possível criar o diretório de resultados para o woker: " + workerId);
         }
-        String command = PropertiesManager.getPropertie("path.src2srcml") + " " + item + " > " + resultDirectory
-                + System.getProperty("file.separator") + filename.replace(".c", ".xml");
+        String command = PropertiesManager.getPropertie("path.src2srcml") + " " + item + " " + SRC2SRCML_WRITE_SYMBOL +
+                " " + resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
         ProccessManager proccessManager = new ProccessManager(command, false);
 
-        return !proccessManager.hasError()
-                && DirectoryManager.getInstance().writeFile(fileResult, proccessManager.getOutput());
+        return !proccessManager.hasError() && DirectoryManager.getInstance().writeFile(fileResult, proccessManager.getOutput());
     }
 
     public ArrayList<String> executeMacros(String filePath) {

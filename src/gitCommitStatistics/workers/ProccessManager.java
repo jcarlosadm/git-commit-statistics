@@ -45,6 +45,7 @@ public class ProccessManager {
         return error;
     }
     public boolean hasError() {
-        return output.isEmpty() && !error.isEmpty();
+        //return output.isEmpty() && !error.isEmpty();
+        return output.isEmpty() || !error.isEmpty();
     }
 }

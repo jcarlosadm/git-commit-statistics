@@ -97,7 +97,7 @@ public class MainWorker {
                     executeTasks(gitManager.getChangeMapKeys(), gitManager.getChangedFilesMap());
                     writeResults(repo);
                     GeneralReport.getInstance().reportInfo(repo + ": finalizado");
-                    this.makeAnalysisOnCurrentRepo(gitManager);
+                    this.makeAnalysisOnCurrentRepo(gitManager, repo);
                 }
             }
             return true;
@@ -109,7 +109,7 @@ public class MainWorker {
         return DirectoryManager.getInstance().writeResults(backupMap, repo);
     }
 
-    protected void makeAnalysisOnCurrentRepo(GitManager gitManager) {
+    protected void makeAnalysisOnCurrentRepo(GitManager gitManager, String repo) {
     }
 
     public void executeTasks(ArrayList<String> commits, Hashtable<String, ArrayList<String>> changeMap) {
