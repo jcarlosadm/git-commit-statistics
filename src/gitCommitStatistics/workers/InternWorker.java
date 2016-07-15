@@ -24,7 +24,8 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
 
     @Override
     public ArrayList<ArrayList<String>> call() throws Exception {
-        String filename = filePathAux.substring(filePathAux.lastIndexOf(System.getProperty("file.separator")) + 1);
+        String filename = filePathAux.substring(filePathAux.lastIndexOf(
+                System.getProperty("file.separator")) + 1);
         File file = new File(filePathAux);
         ArrayList<ArrayList<String>> result = new ArrayList<ArrayList<String>>();
         ArrayList<String> pathToArray = new ArrayList<String>();
@@ -36,6 +37,7 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
                 return result;
             }
         }
+        
         return null;
     }
 
@@ -61,7 +63,7 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
         //      " " + resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
         String command = PropertiesManager.getPropertie("path.src2srcml") + " " + item;
         
-        ProccessManager proccessManager = new ProccessManager(command, false);
+        ProccessManager proccessManager = new ProccessManager(command, true);
         return (!proccessManager.hasError() && DirectoryManager.getInstance().writeFile(fileResult, proccessManager.getOutput()));
     }
 
@@ -70,7 +72,7 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
                 fileResult = resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
         String command = PropertiesManager.getPropertie("path.dmacros") + " " + fileResult;
         // ProccessManager proccessManager = new ProccessManager(command, true);
-        ProccessManager proccessManager = new ProccessManager(command, false);
+        ProccessManager proccessManager = new ProccessManager(command, true);
         if (proccessManager.hasError()) {
             DirectoryManager.getInstance().deleteFile(new File(fileResult));
             return null;

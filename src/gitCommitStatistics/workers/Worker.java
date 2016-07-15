@@ -16,7 +16,7 @@ public class Worker implements Callable<Hashtable<String, Hashtable<String, Arra
     protected String hashId;
     protected String workerId;
     protected String path;
-    //private String resultDirectory;
+    // private String resultDirectory;
     protected ArrayList<String> filesToAnalise;
     protected List<Callable<ArrayList<ArrayList<String>>>> interns;
     protected ExecutorService executorService;
@@ -27,7 +27,8 @@ public class Worker implements Callable<Hashtable<String, Hashtable<String, Arra
         this.workerId = workerId;
         this.hashId = hashId;
         this.path = DirectoryManager.WORKERS_PATH + System.getProperty("file.separator") + workerId;
-        //this.resultDirectory = path + System.getProperty("file.separator") + "results-" + workerId;
+        // this.resultDirectory = path + System.getProperty("file.separator") +
+        // "results-" + workerId;
         if (!DirectoryManager.getInstance().testIfExists(path)) {
             DirectoryManager.getInstance().cloneProject(workerId);
         }
@@ -51,7 +52,8 @@ public class Worker implements Callable<Hashtable<String, Hashtable<String, Arra
                 if (i > 0 && i % numberOfInterns == 0) {
                     List<Future<ArrayList<ArrayList<String>>>> tasks = executorService.invokeAll(interns);
                     for (Future<ArrayList<ArrayList<String>>> task : tasks) {
-                        if (task.get() != null && task.get().size() >= 2 && !task.get().get(0).isEmpty()
+                        if (task.get() != null && task.get().size() >= 2 && task.get().get(0) != null
+                                && !task.get().get(0).isEmpty() && task.get().get(1) != null
                                 && !task.get().get(1).isEmpty()) {
                             resultsTemp.put(task.get().get(0).get(0), task.get().get(1));
                         }
@@ -60,6 +62,7 @@ public class Worker implements Callable<Hashtable<String, Hashtable<String, Arra
                 }
 
             } catch (Exception e) {
+                System.out.println(e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -68,7 +71,7 @@ public class Worker implements Callable<Hashtable<String, Hashtable<String, Arra
 
         return result;
     }
-    
+
     protected void preCommitTask() {
     }
 
