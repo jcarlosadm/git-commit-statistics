@@ -1,14 +1,14 @@
 package gitCommitStatistics.workers;
 
-import gitCommitStatistics.report.GeneralReport;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+
+import gitCommitStatistics.report.GeneralReport;
 
 public class ProccessManager {
+    // TODO constant ARRAYLIST_LIMITED
     private static final boolean ARRAYLIST_LIMITED = true;
+    // TODO constant MAX_ARRAYLIST_SIZE
     private static final int MAX_ARRAYLIST_SIZE = 10000;
     private String output;
     private String error;
@@ -22,32 +22,27 @@ public class ProccessManager {
             Process p = r.exec(command);
             String line = "";
             b = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            List<String> outLines = new ArrayList<>();
             boolean killedProcess = false;
             boolean continueWhile = true;
+            int counter = 0;
             if (withReturn) {
                 while ((line = b.readLine()) != null && continueWhile) {
-                    if (ARRAYLIST_LIMITED && outLines.size() >= MAX_ARRAYLIST_SIZE) {
+                    if (ARRAYLIST_LIMITED && counter >= MAX_ARRAYLIST_SIZE) {
                         continueWhile = false;
+                        p.destroy();
+                        killedProcess = true;
                     } else {
-                        outLines.add(line);
+                        output += line + System.getProperty("line.separator");
+                        ++counter;
                     }
                 }
-                if (ARRAYLIST_LIMITED && outLines.size() >= MAX_ARRAYLIST_SIZE) {
-                    p.destroy();
-                    killedProcess = true;
-                }
                 p.waitFor();
-            }
-
-            for (int lineIndex = 0; lineIndex < outLines.size(); ++lineIndex) {
-                output += outLines.get(lineIndex) + System.getProperty("line.separator");
             }
 
             if (!killedProcess) {
                 b = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
-                int counter = 0;
+                counter = 0;
                 continueWhile = true;
                 while ((line = b.readLine()) != null && continueWhile) {
                     if (ARRAYLIST_LIMITED && counter >= MAX_ARRAYLIST_SIZE) {
