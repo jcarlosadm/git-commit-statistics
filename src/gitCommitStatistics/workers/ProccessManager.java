@@ -23,9 +23,14 @@ public class ProccessManager {
             String line = "";
             b = new BufferedReader(new InputStreamReader(p.getInputStream()));
             List<String> outLines = new ArrayList<>();
+            boolean killedProcess = false;
             if (withReturn) {
                 while ((line = b.readLine()) != null && ARRAYLIST_LIMITED && outLines.size() < MAX_ARRAYLIST_SIZE) {
                     outLines.add(line);
+                }
+                if (ARRAYLIST_LIMITED && outLines.size() >= MAX_ARRAYLIST_SIZE) {
+                    p.destroy();
+                    killedProcess = true;
                 }
                 p.waitFor();
             }
@@ -34,12 +39,14 @@ public class ProccessManager {
                 output += outLines.get(lineIndex) + System.getProperty("line.separator");
             }
 
-            b = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            if (!killedProcess) {
+                b = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
-            int counter = 0;
-            while ((line = b.readLine()) != null && ARRAYLIST_LIMITED && counter < MAX_ARRAYLIST_SIZE) {
-                error += line + System.getProperty("line.separator");
-                ++counter;
+                int counter = 0;
+                while ((line = b.readLine()) != null && ARRAYLIST_LIMITED && counter < MAX_ARRAYLIST_SIZE) {
+                    error += line + System.getProperty("line.separator");
+                    ++counter;
+                }
             }
 
             b.close();
