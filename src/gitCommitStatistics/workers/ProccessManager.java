@@ -7,9 +7,9 @@ import gitCommitStatistics.report.GeneralReport;
 
 public class ProccessManager {
     // TODO constant ARRAYLIST_LIMITED
-    private static final boolean ARRAYLIST_LIMITED = true;
+    private static final boolean NUMBER_OF_LINES_LIMITED = true;
     // TODO constant MAX_ARRAYLIST_SIZE
-    private static final int MAX_ARRAYLIST_SIZE = 10000;
+    private static final int MAX_NUMBER_OF_LINES = 10000;
     private String output;
     private String error;
 
@@ -27,7 +27,7 @@ public class ProccessManager {
             int counter = 0;
             if (withReturn) {
                 while ((line = b.readLine()) != null && continueWhile) {
-                    if (ARRAYLIST_LIMITED && counter >= MAX_ARRAYLIST_SIZE) {
+                    if (NUMBER_OF_LINES_LIMITED && counter >= MAX_NUMBER_OF_LINES) {
                         continueWhile = false;
                         p.destroy();
                         killedProcess = true;
@@ -45,7 +45,7 @@ public class ProccessManager {
                 counter = 0;
                 continueWhile = true;
                 while ((line = b.readLine()) != null && continueWhile) {
-                    if (ARRAYLIST_LIMITED && counter >= MAX_ARRAYLIST_SIZE) {
+                    if (NUMBER_OF_LINES_LIMITED && counter >= MAX_NUMBER_OF_LINES) {
                         continueWhile = false;
                     } else {
                         error += line + System.getProperty("line.separator");
