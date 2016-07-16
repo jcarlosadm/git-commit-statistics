@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProccessManager {
+    private static final boolean ARRAYLIST_LIMITED = true;
     private static final int MAX_ARRAYLIST_SIZE = 10000;
     private String output;
     private String error;
@@ -23,7 +24,7 @@ public class ProccessManager {
             b = new BufferedReader(new InputStreamReader(p.getInputStream()));
             List<String> outLines = new ArrayList<>();
             if (withReturn) {
-                while ((line = b.readLine()) != null && outLines.size() < MAX_ARRAYLIST_SIZE) {
+                while ((line = b.readLine()) != null && ARRAYLIST_LIMITED && outLines.size() < MAX_ARRAYLIST_SIZE) {
                     outLines.add(line);
                 }
                 p.waitFor();
@@ -36,7 +37,7 @@ public class ProccessManager {
             b = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
             int counter = 0;
-            while ((line = b.readLine()) != null && counter < MAX_ARRAYLIST_SIZE) {
+            while ((line = b.readLine()) != null && ARRAYLIST_LIMITED && counter < MAX_ARRAYLIST_SIZE) {
                 error += line + System.getProperty("line.separator");
                 ++counter;
             }
