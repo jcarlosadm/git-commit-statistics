@@ -109,7 +109,8 @@ public class GitManager {
                     List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
                     ArrayList<String> changedFiles = new ArrayList<String>();
                     for (DiffEntry diff : diffs) {
-                        if (diff.getChangeType().name().equals("MODIFY") && diff.getNewPath().substring(diff.getNewPath().length() - 2).equals(".c")) {
+                        // TODO add?
+                        if ((diff.getChangeType().name().equals("MODIFY") || diff.getChangeType().name().equals("ADD")) && diff.getNewPath().substring(diff.getNewPath().length() - 2).equals(".c")) {
                             changedFiles.add(diff.getNewPath());
                         }
                     }

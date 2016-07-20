@@ -120,7 +120,7 @@ public class MainWorker {
         for (; i < commits.size(); i++) {
             try {
                 workers.add(getWorkerInstance(commits, changeMap, i));
-                if (i > 0 && i % numberOfWorkers == 0) {
+                if (i % numberOfWorkers == 0 || i == commits.size() - 1) {
                     System.out.println(i + " tasks");
                     List<Future<Hashtable<String, Hashtable<String, ArrayList<String>>>>> tasks = executorService
                             .invokeAll(workers);
@@ -149,7 +149,7 @@ public class MainWorker {
     }
 
     protected Worker getWorkerInstance(ArrayList<String> commits, Hashtable<String, ArrayList<String>> changeMap,
-            int commitIndex) {
+            int commitIndex) {        
         return new Worker("Worker-" + commitIndex % numberOfWorkers, commits.get(commitIndex),
                 changeMap.get(commits.get(commitIndex)));
     }

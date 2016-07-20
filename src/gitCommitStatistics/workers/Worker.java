@@ -45,11 +45,10 @@ public class Worker implements Callable<Hashtable<String, Hashtable<String, Arra
         Hashtable<String, ArrayList<String>> resultsTemp = new Hashtable<String, ArrayList<String>>();
         Hashtable<String, Hashtable<String, ArrayList<String>>> result = new Hashtable<String, Hashtable<String, ArrayList<String>>>();
         this.preCommitTask();
-
         for (int i = 0; i < filesToAnalise.size(); i++) {
             try {
                 interns.add(this.getInternWorkerInstance(i));
-                if (i > 0 && i % numberOfInterns == 0) {
+                if (i % numberOfInterns == 0 || i == filesToAnalise.size() - 1) {
                     List<Future<ArrayList<ArrayList<String>>>> tasks = executorService.invokeAll(interns);
                     for (Future<ArrayList<ArrayList<String>>> task : tasks) {
                         if (task.get() != null && task.get().size() >= 2 && task.get().get(0) != null
