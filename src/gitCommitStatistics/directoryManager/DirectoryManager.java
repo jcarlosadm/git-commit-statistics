@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import gitCommitStatistics.properties.PropertiesManager;
 import gitCommitStatistics.report.GeneralReport;
+import gitCommitStatistics.workers.MainWorker;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -97,7 +98,7 @@ public class DirectoryManager {
 
     public boolean cloneProject(String dest) {
         try {
-            File projectDir = new File(PATH + System.getProperty("file.separator") + "project");
+            File projectDir = new File(PATH + System.getProperty("file.separator") + "project" + File.separator + MainWorker.getCurrentRepoName());
             File workerDir = new File(WORKERS_PATH + System.getProperty("file.separator") + dest);
             if (!projectDir.exists()) {
                 GeneralReport.getInstance().reportError("Projeto não encontrado");

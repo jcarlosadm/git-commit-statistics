@@ -19,8 +19,8 @@ import gitCommitStatistics.report.GeneralReport;
 
 public class MainWorker {
     protected ArrayList<String> repos;
-    //private Hashtable<String, String> commitStatus;
-    //private Hashtable<String, String> commitResults;
+    // private Hashtable<String, String> commitStatus;
+    // private Hashtable<String, String> commitResults;
     protected List<Callable<Hashtable<String, Hashtable<String, ArrayList<String>>>>> workers;
     protected ExecutorService executorService;
     private static MainWorker instance;
@@ -30,6 +30,8 @@ public class MainWorker {
     protected Hashtable<String, Hashtable<String, ArrayList<String>>> resultMap;
     protected Hashtable<String, Hashtable<String, ArrayList<String>>> backupMap;
     protected ArrayList<String> commitsChecked;
+    
+    private static String CURRENT_REPO_NAME = "";
 
     protected MainWorker() {
         // Check if src2srcml, srcml2src, dmacros exists,
@@ -62,6 +64,7 @@ public class MainWorker {
 
             executorService.shutdown();
         } catch (Exception e) {
+            e.printStackTrace();
             GeneralReport.getInstance().reportError("Dependências não encontradas");
         }
 
@@ -90,19 +93,45 @@ public class MainWorker {
                     resumeTasks = DirectoryManager.getInstance().getResumeTasks(repo);
                 }
                 System.out.println(DirectoryManager.getInstance().getResumeTasks(repo));
-                if (GitManager.cloneRepo(repo, GitManager.PROJECT_PATH)) { // Cloning
-                                                                           // repo
+
+                CURRENT_REPO_NAME = repo.substring(repo.lastIndexOf("/") + 1, repo.lastIndexOf("."));
+                
+                boolean cloneSuccessful = true;
+                if (this.makeClone(CURRENT_REPO_NAME)) {
+                    cloneSuccessful = GitManager.cloneRepo(repo, GitManager.PROJECT_PATH + File.separator + CURRENT_REPO_NAME);
+                }
+                
+                if (cloneSuccessful) {
                     GitManager gitManager = new GitManager();
-                    gitManager.setRepository(GitManager.PROJECT_PATH);
-                    executeTasks(gitManager.getChangeMapKeys(), gitManager.getChangedFilesMap());
-                    writeResults(repo);
-                    GeneralReport.getInstance().reportInfo(repo + ": finalizado");
+                    gitManager.setRepository(GitManager.PROJECT_PATH + File.separator + CURRENT_REPO_NAME);
+                    if(this.getData()) {
+                        executeTasks(gitManager.getChangeMapKeys(), gitManager.getChangedFilesMap());
+                        writeResults(repo);
+                        GeneralReport.getInstance().reportInfo(repo + ": finalizado");
+                    } else {
+                        this.fillResultMap();
+                    }
                     this.makeAnalysisOnCurrentRepo(gitManager, repo);
                 }
             }
             return true;
         }
         return false;
+    }
+    
+    protected void fillResultMap() {
+    }
+
+    protected boolean getData() {
+        return true;
+    }
+
+    public static String getCurrentRepoName(){
+        return CURRENT_REPO_NAME;
+    }
+
+    protected boolean makeClone(String repoName) {
+        return true;
     }
 
     protected boolean writeResults(String repo) {
@@ -136,7 +165,7 @@ public class MainWorker {
                             }
                         }
                     }
-                    
+
                     this.createBackup();
                     workers = new ArrayList<Callable<Hashtable<String, Hashtable<String, ArrayList<String>>>>>();
                 }
@@ -149,7 +178,7 @@ public class MainWorker {
     }
 
     protected Worker getWorkerInstance(ArrayList<String> commits, Hashtable<String, ArrayList<String>> changeMap,
-            int commitIndex) {        
+            int commitIndex) {
         return new Worker("Worker-" + commitIndex % numberOfWorkers, commits.get(commitIndex),
                 changeMap.get(commits.get(commitIndex)));
     }

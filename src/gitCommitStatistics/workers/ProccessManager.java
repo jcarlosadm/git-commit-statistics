@@ -1,6 +1,9 @@
 package gitCommitStatistics.workers;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import gitCommitStatistics.report.GeneralReport;
@@ -13,7 +16,10 @@ public class ProccessManager {
     private String output;
     private String error;
 
-    public ProccessManager(String command, boolean withReturn) {
+    public ProccessManager() {
+    }
+
+    public void exec(String command, boolean withReturn) {
         BufferedReader b;
         try {
             output = "";
@@ -58,7 +64,40 @@ public class ProccessManager {
         } catch (Exception e) {
             GeneralReport.getInstance().reportError("Não foi possível executar o comando: " + command);
         }
+    }
 
+    public void execToFile(String command, String outputPath) {
+
+        String[] commands = command.split(" ");
+        
+        String errorPath = outputPath + "SSSSSerrorSSSS";
+
+        ProcessBuilder builder = new ProcessBuilder(commands);
+        builder.redirectOutput(new File(outputPath));
+        builder.redirectError(new File(errorPath));
+        try {
+            Process p = builder.start();
+            p.waitFor();
+            
+            this.output = "";
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        
+        try {
+            this.error = "";
+            
+            BufferedReader bReader = new BufferedReader(new FileReader(new File(errorPath)));
+            String line = "";
+            while ((line = bReader.readLine()) != null) {
+                this.error += line;
+            }
+            
+            bReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
     }
 
     public String getOutput() {
@@ -70,7 +109,7 @@ public class ProccessManager {
     }
 
     public boolean hasError() {
-        // return output.isEmpty() && !error.isEmpty();
-        return (output.isEmpty() || !error.isEmpty());
+        // return output.isEmpty() || !error.isEmpty();
+        return (!error.isEmpty());
     }
 }

@@ -21,7 +21,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 public class GitManager {
-    public static String PROJECT_PATH = PropertiesManager.getPropertie("path") + System.getProperty("file.separator") + "project"; //Ex git@github.com:me/mytestrepo.git
+    public static final String PROJECT_PATH = PropertiesManager.getPropertie("path") + System.getProperty("file.separator") + "project"; //Ex git@github.com:me/mytestrepo.git
     private Iterable<RevCommit> commitList;
     private Repository repository;
     private Git git;

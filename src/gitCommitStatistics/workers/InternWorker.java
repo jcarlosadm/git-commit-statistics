@@ -63,7 +63,8 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
         //      " " + resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
         String command = PropertiesManager.getPropertie("path.src2srcml") + " " + item;
         
-        ProccessManager proccessManager = new ProccessManager(command, true);
+        ProccessManager proccessManager = new ProccessManager();
+        proccessManager.exec(command, true);
         return (!proccessManager.hasError() && DirectoryManager.getInstance().writeFile(fileResult, proccessManager.getOutput()));
     }
 
@@ -72,8 +73,8 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
                 fileResult = resultDirectory + System.getProperty("file.separator") + filename.replace(".c", ".xml");
         String command = PropertiesManager.getPropertie("path.dmacros") + " " + fileResult;
         // ProccessManager proccessManager = new ProccessManager(command, true);
-        ProccessManager proccessManager = new ProccessManager(command, true);
-        if (proccessManager.hasError()) {
+        ProccessManager proccessManager = new ProccessManager();
+        if (this.executeProcess(command, proccessManager) == false) {
             DirectoryManager.getInstance().deleteFile(new File(fileResult));
             return null;
         } else {
@@ -83,6 +84,15 @@ public class InternWorker implements Callable<ArrayList<ArrayList<String>>> {
             DirectoryManager.getInstance().deleteFile(new File(fileResult));
             return result;
         }
+    }
+
+    protected boolean executeProcess(String command, ProccessManager proccessManager) {
+        proccessManager.exec(command, true);
+        
+        if (proccessManager.hasError()) {
+            return false;
+        }
+        return true;
     }
 
     protected ArrayList<String> transformDmacrosOutput(String dmacrosOutput) {
